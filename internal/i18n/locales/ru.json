@@ -1,0 +1,19 @@
+{
+  "start_welcome": "👋 Привет! Я бот для дней рождения. Используйте /add_birthday, чтобы начать!",
+  "err_unknown_command": "Неизвестная команда. 🤷‍♂️",
+  "err_add_format": "⚠️ Формат: /add_birthday @username DD-MM",
+  "err_date_format": "⚠️ Формат даты должен быть DD-MM (например, 25-12)",
+  "err_invalid_date": "⚠️ Неверная дата. Пожалуйста, введите корректные числа для DD-MM.",
+  "err_save_failed": "❌ Не удалось сохранить.",
+  "success_birthday_saved": "✅ Сохранено! Будем поздравлять @%s числа %02d-%02d.",
+  "empty_birthdays": "Дни рождения еще не добавлены! 📭",
+  "list_title": "🎂 **Сохраненные дни рождения:**\n",
+  "err_set_time_format": "⚠️ Формат: /set_time HH:MM Часовой_пояс\nПример: `/set_time 09:00 Europe/Moscow`",
+  "err_invalid_time": "⚠️ Неверный формат времени. Используйте HH:MM (24 часа).",
+  "err_invalid_tz": "⚠️ Неверный часовой пояс. Используйте формат IANA (например, Europe/Moscow).",
+  "success_time_set": "✅ Время поздравления установлено на %s (%s).",
+  "err_template_empty": "⚠️ Пожалуйста, укажите стиль. Пример: `/set_template Напиши саркастичное поздравление`",
+  "success_template_set": "✅ Стиль ИИ успешно обновлен!",
+  "err_lang_format": "⚠️ Поддерживаемые языки: 'en' и 'ru'. Пример: `/set_language ru`",
+  "success_lang_set": "✅ Язык изменен на русский!"
+}

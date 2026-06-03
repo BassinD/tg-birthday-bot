@@ -12,6 +12,9 @@ type Chat struct {
 
 	// The AI instruction for Gemini.
 	PromptTemplate string `firestore:"prompt_template"`
+
+	// Language preference (e.g., "en" or "ru")
+	Language string `firestore:"language"`
 }
 
 // Birthday represents a single user's birthday linked to a specific chat.

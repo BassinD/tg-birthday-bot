@@ -1,0 +1,19 @@
+{
+  "start_welcome": "👋 Hello! I'm the Birthday Bot. Use /add_birthday to get started!",
+  "err_unknown_command": "Unknown command. 🤷‍♂️",
+  "err_add_format": "⚠️ Format: /add_birthday @username DD-MM",
+  "err_date_format": "⚠️ Date format must be DD-MM (e.g., 25-12)",
+  "err_invalid_date": "⚠️ Invalid date. Please use valid numbers for DD-MM.",
+  "err_save_failed": "❌ Failed to save.",
+  "success_birthday_saved": "✅ Saved! Will celebrate @%s on %02d-%02d.",
+  "empty_birthdays": "No birthdays registered yet! 📭",
+  "list_title": "🎂 **Registered Birthdays:**\n",
+  "err_set_time_format": "⚠️ Format: /set_time HH:MM Timezone\nExample: `/set_time 09:00 Europe/Moscow`",
+  "err_invalid_time": "⚠️ Invalid time format. Use HH:MM (24-hour).",
+  "err_invalid_tz": "⚠️ Invalid timezone. Use IANA format (e.g., Europe/London).",
+  "success_time_set": "✅ Celebration time set to %s (%s).",
+  "err_template_empty": "⚠️ Please provide a style prompt. Example: `/set_template Write a sarcastic greeting`",
+  "success_template_set": "✅ AI Style prompt updated successfully!",
+  "err_lang_format": "⚠️ Supported languages are 'en' and 'ru'. Example: `/set_language ru`",
+  "success_lang_set": "✅ Language changed to English!"
+}
