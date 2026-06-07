@@ -20,7 +20,7 @@ A serverless Telegram bot built in Go that manages birthday notifications for gr
 1. **Clone the repository:**
 
 ```bash
-   git clone [https://github.com/yourusername/tg-birthday-bot.git](https://github.com/yourusername/tg-birthday-bot.git)
+   git clone [https://github.com/BassinD/tg-birthday-bot.git](https://github.com/BassinD/tg-birthday-bot.git)
    cd tg-birthday-bot
 
 ```

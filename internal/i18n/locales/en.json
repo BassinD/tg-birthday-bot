@@ -15,5 +15,6 @@
   "err_template_empty": "⚠️ Please provide a style prompt. Example: `/set_template Write a sarcastic greeting`",
   "success_template_set": "✅ AI Style prompt updated successfully!",
   "err_lang_format": "⚠️ Supported languages are 'en' and 'ru'. Example: `/set_language ru`",
-  "success_lang_set": "✅ Language changed to English!"
+  "success_lang_set": "✅ Language changed to English!",
+  "fallback_wish": "🎉 Happy Birthday @%s! Wishing you a fantastic day!"
 }

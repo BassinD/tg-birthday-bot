@@ -1,0 +1,14 @@
+# Git and IDE
+.git
+.idea
+.vscode
+.DS_Store
+
+# Local environments
+.env
+
+# Build artifacts
+/bin/
+*.exe
+*.test
+*.out

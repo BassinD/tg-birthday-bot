@@ -3,6 +3,7 @@ package telegram
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -19,18 +20,19 @@ type Bot struct {
 }
 
 // NewBot initializes the Telegram bot client.
-func NewBot(token string, database *db.DB) (*Bot, error) {
+func NewBot(token string, database *db.DB, translator *i18n.Translator) (*Bot, error) {
 	api, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to init bot api: %w", err)
 	}
 
 	// Uncomment the next line if you want verbose logging from the Telegram API during local dev
 	// api.Debug = true
 
 	return &Bot{
-		api: api,
-		db:  database,
+		api:  api,
+		db:   database,
+		i18n: translator,
 	}, nil
 }
 
@@ -56,8 +58,8 @@ func (b *Bot) WebhookHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// sendText is a helper to easily reply to a chat.
-func (b *Bot) sendText(chatID int64, text string) {
+// SendText is a helper to easily reply to a chat.
+func (b *Bot) SendText(chatID int64, text string) {
 	msg := tgbotapi.NewMessage(chatID, text)
 	if _, err := b.api.Send(msg); err != nil {
 		log.Printf("Failed to send message to %d: %v", chatID, err)
