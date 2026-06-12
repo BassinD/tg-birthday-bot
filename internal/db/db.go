@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
@@ -141,22 +142,31 @@ func (db *DB) GetTodaysBirthdaysForChat(ctx context.Context, chatID int64, day, 
 
 // DeleteBirthday removes a birthday record for a user in a specific chat.
 func (db *DB) DeleteBirthday(ctx context.Context, chatID int64, username string) error {
-	// Query to find the document with the matching ChatID and Username
+	// 1. Normalize
+	username = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(username), "@"))
+
+	// 2. Query
 	iter := db.client.Collection("birthdays").
 		Where("ChatID", "==", chatID).
 		Where("Username", "==", username).
 		Documents(ctx)
 
-	// Iterate and delete all matches (usually just one)
 	docs, err := iter.GetAll()
 	if err != nil {
 		return err
 	}
 
-	for _, doc := range docs {
-		if _, err := doc.Ref.Delete(ctx); err != nil {
-			return err
-		}
+	// 3. Explicit check: If no docs found, return a custom error
+	if len(docs) == 0 {
+		return fmt.Errorf("no birthday found for user @%s", username)
 	}
-	return nil
+
+	// 4. Batch delete is safer for multiple matches
+	batch := db.client.Batch()
+	for _, doc := range docs {
+		batch.Delete(doc.Ref)
+	}
+
+	_, err = batch.Commit(ctx)
+	return err
 }
