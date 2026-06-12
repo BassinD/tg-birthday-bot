@@ -16,5 +16,7 @@
   "success_template_set": "✅ AI Style prompt updated successfully!",
   "err_lang_format": "⚠️ Supported languages are 'en' and 'ru'. Example: `/set_language ru`",
   "success_lang_set": "✅ Language changed to English!",
-  "fallback_wish": "🎉 Happy Birthday @%s! Wishing you a fantastic day!"
+  "fallback_wish": "🎉 Happy Birthday @%s! Wishing you a fantastic day!",
+  "err_delete_format": "Please provide a username: /delete_birthday @username",
+  "success_birthday_deleted": "Birthday for user @%s successfully deleted!"
 }
