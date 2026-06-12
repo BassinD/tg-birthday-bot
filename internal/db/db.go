@@ -147,8 +147,8 @@ func (db *DB) DeleteBirthday(ctx context.Context, chatID int64, username string)
 
 	// 2. Query
 	iter := db.client.Collection("birthdays").
-		Where("ChatID", "==", chatID).
-		Where("Username", "==", username).
+		Where("chat_id", "==", chatID).
+		Where("username", "==", username).
 		Documents(ctx)
 
 	docs, err := iter.GetAll()
