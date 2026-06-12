@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// 2. Initialize Database (Firestore)
-	database, err := db.NewDB(ctx, cfg.GCPProjectID)
+	database, err := db.NewDB(ctx, cfg.GCPProjectID, cfg.FirestoreDBID)
 	if err != nil {
 		log.Fatalf("❌ Failed to connect to database: %v", err)
 	}
@@ -31,7 +31,7 @@ func main() {
 
 	// 3. Initialize Translations (Fallback to Russian)
 	translator := i18n.NewTranslator("ru")
-
+	ix
 	// 4. Initialize AI Client (Gemini)
 	aiClient, err := ai.NewClient(ctx, cfg.GeminiAPIKey)
 	if err != nil {

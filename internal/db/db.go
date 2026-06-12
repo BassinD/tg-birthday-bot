@@ -15,8 +15,8 @@ type DB struct {
 }
 
 // NewDB initializes a new Firestore client.
-func NewDB(ctx context.Context, projectID string) (*DB, error) {
-	client, err := firestore.NewClient(ctx, projectID)
+func NewDB(ctx context.Context, projectID, firestoreID string) (*DB, error) {
+	client, err := firestore.NewClientWithDatabase(ctx, projectID, firestoreID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create firestore client: %w", err)
 	}

@@ -18,15 +18,18 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 	command := msg.Command()
 	args := msg.CommandArguments()
 
+	log.Printf("📥 Received command '/%s' with args '%s' from chat %d", command, args, chatID)
+
 	// 1. Fetch or initialize chat settings
 	chat, err := b.db.GetChat(ctx, chatID)
 	if err != nil {
-		log.Printf("Error fetching chat: %v", err)
+		log.Printf("❌ ERROR fetching chat %d: %v", chatID, err)
 		return
 	}
 
 	// 2. Set default language to Russian if it's a new chat or not set
 	if chat == nil {
+		log.Printf("ℹ️ Initializing new chat record for %d", chatID)
 		chat = &db.Chat{ChatID: chatID, Language: "ru"}
 	} else if chat.Language == "" {
 		chat.Language = "ru"
@@ -37,7 +40,11 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 	// 3. Route the command
 	switch command {
 	case "start":
-		_ = b.db.SaveChat(ctx, chat)
+		if err := b.db.SaveChat(ctx, chat); err != nil {
+			log.Printf("❌ ERROR saving new chat %d on /start: %v", chatID, err)
+		} else {
+			log.Printf("✅ Successfully registered chat %d", chatID)
+		}
 		b.SendText(chatID, b.i18n.T(lang, "start_welcome"))
 
 	case "add_birthday":
@@ -53,9 +60,10 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 		b.handleSetTemplate(ctx, chat, args, lang)
 
 	case "set_language":
-		b.handleSetLanguage(ctx, chat, args) // We handle lang inside, as it might change!
+		b.handleSetLanguage(ctx, chat, args)
 
 	default:
+		log.Printf("⚠️ Unknown command '/%s' from chat %d", command, chatID)
 		b.SendText(chatID, b.i18n.T(lang, "err_unknown_command"))
 	}
 }
@@ -63,6 +71,7 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, args, lang string) {
 	parts := strings.Fields(args)
 	if len(parts) != 2 {
+		log.Printf("⚠️ Invalid /add_birthday format from chat %d: %s", chat.ChatID, args)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_add_format"))
 		return
 	}
@@ -70,6 +79,7 @@ func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, args, lang s
 	username := strings.TrimPrefix(parts[0], "@")
 	dateParts := strings.Split(parts[1], "-")
 	if len(dateParts) != 2 {
+		log.Printf("⚠️ Invalid date format from chat %d: %s", chat.ChatID, parts[1])
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_date_format"))
 		return
 	}
@@ -77,6 +87,7 @@ func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, args, lang s
 	day, err1 := strconv.Atoi(dateParts[0])
 	month, err2 := strconv.Atoi(dateParts[1])
 	if err1 != nil || err2 != nil || day < 1 || day > 31 || month < 1 || month > 12 {
+		log.Printf("⚠️ Invalid date logic from chat %d: %s", chat.ChatID, parts[1])
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_invalid_date"))
 		return
 	}
@@ -89,26 +100,30 @@ func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, args, lang s
 	}
 
 	if err := b.db.AddBirthday(ctx, birthday); err != nil {
+		log.Printf("❌ ERROR saving birthday for @%s in chat %d: %v", username, chat.ChatID, err)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_save_failed"))
 		return
 	}
 
-	// Using T() with formatting arguments
+	log.Printf("✅ Successfully saved birthday for @%s (%02d-%02d) in chat %d", username, day, month, chat.ChatID)
 	b.SendText(chat.ChatID, b.i18n.T(lang, "success_birthday_saved", username, day, month))
 }
 
 func (b *Bot) handleListBirthdays(ctx context.Context, chat *db.Chat, lang string) {
 	birthdays, err := b.db.GetBirthdaysForChat(ctx, chat.ChatID)
 	if err != nil {
+		log.Printf("❌ ERROR fetching birthdays for chat %d: %v", chat.ChatID, err)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_save_failed"))
 		return
 	}
 
 	if len(birthdays) == 0 {
+		log.Printf("ℹ️ No birthdays found for chat %d", chat.ChatID)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "empty_birthdays"))
 		return
 	}
 
+	log.Printf("✅ Listed %d birthdays for chat %d", len(birthdays), chat.ChatID)
 	var msg strings.Builder
 	msg.WriteString(b.i18n.T(lang, "list_title") + "\n")
 	for _, b := range birthdays {
@@ -120,6 +135,7 @@ func (b *Bot) handleListBirthdays(ctx context.Context, chat *db.Chat, lang strin
 func (b *Bot) handleSetTime(ctx context.Context, chat *db.Chat, args, lang string) {
 	parts := strings.Fields(args)
 	if len(parts) != 2 {
+		log.Printf("⚠️ Invalid /set_time format from chat %d: %s", chat.ChatID, args)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_set_time_format"))
 		return
 	}
@@ -127,11 +143,13 @@ func (b *Bot) handleSetTime(ctx context.Context, chat *db.Chat, args, lang strin
 	timeStr, tzStr := parts[0], parts[1]
 
 	if _, err := time.Parse("15:04", timeStr); err != nil {
+		log.Printf("⚠️ Invalid time string from chat %d: %s", chat.ChatID, timeStr)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_invalid_time"))
 		return
 	}
 
 	if _, err := time.LoadLocation(tzStr); err != nil {
+		log.Printf("⚠️ Invalid timezone from chat %d: %s", chat.ChatID, tzStr)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_invalid_tz"))
 		return
 	}
@@ -139,23 +157,30 @@ func (b *Bot) handleSetTime(ctx context.Context, chat *db.Chat, args, lang strin
 	chat.CelebrationTime = timeStr
 	chat.Timezone = tzStr
 	if err := b.db.SaveChat(ctx, chat); err != nil {
+		log.Printf("❌ ERROR saving time settings for chat %d: %v", chat.ChatID, err)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_save_failed"))
 		return
 	}
+
+	log.Printf("✅ Successfully updated time settings for chat %d: %s %s", chat.ChatID, timeStr, tzStr)
 	b.SendText(chat.ChatID, b.i18n.T(lang, "success_time_set", timeStr, tzStr))
 }
 
 func (b *Bot) handleSetTemplate(ctx context.Context, chat *db.Chat, args, lang string) {
 	if strings.TrimSpace(args) == "" {
+		log.Printf("⚠️ Empty /set_template from chat %d", chat.ChatID)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_template_empty"))
 		return
 	}
 
 	chat.PromptTemplate = args
 	if err := b.db.SaveChat(ctx, chat); err != nil {
+		log.Printf("❌ ERROR saving template for chat %d: %v", chat.ChatID, err)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_save_failed"))
 		return
 	}
+
+	log.Printf("✅ Successfully updated AI template for chat %d", chat.ChatID)
 	b.SendText(chat.ChatID, b.i18n.T(lang, "success_template_set"))
 }
 
@@ -163,7 +188,7 @@ func (b *Bot) handleSetLanguage(ctx context.Context, chat *db.Chat, args string)
 	newLang := strings.ToLower(strings.TrimSpace(args))
 
 	if newLang != "en" && newLang != "ru" {
-		// Use the current language to tell them they messed up the command
+		log.Printf("⚠️ Invalid language selection from chat %d: %s", chat.ChatID, newLang)
 		currentLang := chat.Language
 		if currentLang == "" {
 			currentLang = "ru"
@@ -174,10 +199,11 @@ func (b *Bot) handleSetLanguage(ctx context.Context, chat *db.Chat, args string)
 
 	chat.Language = newLang
 	if err := b.db.SaveChat(ctx, chat); err != nil {
+		log.Printf("❌ ERROR saving language for chat %d: %v", chat.ChatID, err)
 		b.SendText(chat.ChatID, b.i18n.T(chat.Language, "err_save_failed"))
 		return
 	}
 
-	// Reply in the newly selected language!
+	log.Printf("✅ Successfully updated language to '%s' for chat %d", newLang, chat.ChatID)
 	b.SendText(chat.ChatID, b.i18n.T(newLang, "success_lang_set"))
 }

@@ -10,6 +10,7 @@ const (
 	envTelegramToken = "TELEGRAM_BOT_TOKEN"
 	envGeminiAPIKey  = "GEMINI_API_KEY"
 	envGCPProjectID  = "GCP_PROJECT_ID"
+	envDBID          = "FIRESTORE_DB_ID"
 	envPort          = "PORT"
 	envDailyLimit    = "DAILY_MSG_LIMIT"
 )
@@ -19,6 +20,7 @@ type Config struct {
 	TelegramToken string
 	GeminiAPIKey  string
 	GCPProjectID  string
+	FirestoreDBID string
 	Port          string
 	DailyMsgLimit int
 }
@@ -39,6 +41,7 @@ func Load() (*Config, error) {
 		TelegramToken: os.Getenv(envTelegramToken),
 		GeminiAPIKey:  os.Getenv(envGeminiAPIKey),
 		GCPProjectID:  os.Getenv(envGCPProjectID),
+		FirestoreDBID: os.Getenv(envDBID),
 		Port:          os.Getenv(envPort),
 		DailyMsgLimit: limit,
 	}
@@ -52,6 +55,9 @@ func Load() (*Config, error) {
 	}
 	if cfg.GCPProjectID == "" {
 		return nil, fmt.Errorf("%s is not set", envGCPProjectID)
+	}
+	if cfg.FirestoreDBID == "" {
+		cfg.FirestoreDBID = "default"
 	}
 	if cfg.Port == "" {
 		cfg.Port = "8080"
