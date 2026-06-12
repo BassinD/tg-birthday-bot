@@ -138,3 +138,25 @@ func (db *DB) GetTodaysBirthdaysForChat(ctx context.Context, chatID int64, day, 
 	}
 	return birthdays, nil
 }
+
+// DeleteBirthday removes a birthday record for a user in a specific chat.
+func (db *DB) DeleteBirthday(ctx context.Context, chatID int64, username string) error {
+	// Query to find the document with the matching ChatID and Username
+	iter := db.client.Collection("birthdays").
+		Where("ChatID", "==", chatID).
+		Where("Username", "==", username).
+		Documents(ctx)
+
+	// Iterate and delete all matches (usually just one)
+	docs, err := iter.GetAll()
+	if err != nil {
+		return err
+	}
+
+	for _, doc := range docs {
+		if _, err := doc.Ref.Delete(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
+}

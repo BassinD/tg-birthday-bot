@@ -62,6 +62,9 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 	case "set_language":
 		b.handleSetLanguage(ctx, chat, args)
 
+	case "delete_birthday":
+		b.handleDeleteBirthday(ctx, chat, args, lang)
+
 	default:
 		log.Printf("⚠️ Unknown command '/%s' from chat %d", command, chatID)
 		b.SendText(chatID, b.i18n.T(lang, "err_unknown_command"))
@@ -206,4 +209,21 @@ func (b *Bot) handleSetLanguage(ctx context.Context, chat *db.Chat, args string)
 
 	log.Printf("✅ Successfully updated language to '%s' for chat %d", newLang, chat.ChatID)
 	b.SendText(chat.ChatID, b.i18n.T(newLang, "success_lang_set"))
+}
+
+func (b *Bot) handleDeleteBirthday(ctx context.Context, chat *db.Chat, args, lang string) {
+	username := strings.TrimPrefix(strings.TrimSpace(args), "@")
+	if username == "" {
+		b.SendText(chat.ChatID, b.i18n.T(lang, "err_delete_format"))
+		return
+	}
+
+	if err := b.db.DeleteBirthday(ctx, chat.ChatID, username); err != nil {
+		log.Printf("❌ ERROR deleting birthday for @%s: %v", username, err)
+		b.SendText(chat.ChatID, b.i18n.T(lang, "err_save_failed"))
+		return
+	}
+
+	log.Printf("✅ Deleted birthday for @%s in chat %d", username, chat.ChatID)
+	b.SendText(chat.ChatID, b.i18n.T(lang, "success_birthday_deleted", username))
 }

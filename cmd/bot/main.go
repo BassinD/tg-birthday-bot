@@ -31,7 +31,7 @@ func main() {
 
 	// 3. Initialize Translations (Fallback to Russian)
 	translator := i18n.NewTranslator("ru")
-	ix
+
 	// 4. Initialize AI Client (Gemini)
 	aiClient, err := ai.NewClient(ctx, cfg.GeminiAPIKey)
 	if err != nil {
