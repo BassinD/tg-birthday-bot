@@ -1,7 +1,7 @@
 {
   "start_welcome": "👋 Hello! I'm the Birthday Bot. Use /add_birthday to get started!",
   "err_unknown_command": "Unknown command. 🤷‍♂️",
-  "err_add_format": "⚠️ Format: /add_birthday @username DD-MM",
+  "err_add_format": "⚠️ Format: /add_birthday DD-MM",
   "err_date_format": "⚠️ Date format must be DD-MM (e.g., 25-12)",
   "err_invalid_date": "⚠️ Invalid date. Please use valid numbers for DD-MM.",
   "err_save_failed": "❌ Failed to save.",
@@ -17,6 +17,7 @@
   "err_lang_format": "⚠️ Supported languages are 'en' and 'ru'. Example: `/set_language ru`",
   "success_lang_set": "✅ Language changed to English!",
   "fallback_wish": "🎉 Happy Birthday @%s! Wishing you a fantastic day!",
-  "err_delete_format": "Please provide a username: /delete_birthday @username",
-  "success_birthday_deleted": "Birthday for user @%s successfully deleted!"
+  "err_delete_format": "Please use /delete_birthday to remove your birthday.",
+  "success_birthday_deleted": "Birthday for user @%s successfully deleted!",
+  "err_no_username": "⚠️ You must have a Telegram username to use this bot."
 }

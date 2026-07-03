@@ -37,6 +37,11 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 
 	lang := chat.Language
 
+	var username string
+	if msg.From != nil {
+		username = msg.From.UserName
+	}
+
 	// 3. Route the command
 	switch command {
 	case "start":
@@ -48,7 +53,7 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 		b.SendText(chatID, b.i18n.T(lang, "start_welcome"))
 
 	case "add_birthday":
-		b.handleAddBirthday(ctx, chat, args, lang)
+		b.handleAddBirthday(ctx, chat, username, args, lang)
 
 	case "list_birthdays":
 		b.handleListBirthdays(ctx, chat, lang)
@@ -63,7 +68,7 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 		b.handleSetLanguage(ctx, chat, args)
 
 	case "delete_birthday":
-		b.handleDeleteBirthday(ctx, chat, args, lang)
+		b.handleDeleteBirthday(ctx, chat, username, lang)
 
 	default:
 		log.Printf("⚠️ Unknown command '/%s' from chat %d", command, chatID)
@@ -71,18 +76,23 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 	}
 }
 
-func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, args, lang string) {
-	parts := strings.Fields(args)
-	if len(parts) != 2 {
+func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, username, args, lang string) {
+	if username == "" {
+		log.Printf("⚠️ /add_birthday from user without username in chat %d", chat.ChatID)
+		b.SendText(chat.ChatID, b.i18n.T(lang, "err_no_username"))
+		return
+	}
+
+	dateStr := strings.TrimSpace(args)
+	if dateStr == "" {
 		log.Printf("⚠️ Invalid /add_birthday format from chat %d: %s", chat.ChatID, args)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_add_format"))
 		return
 	}
 
-	username := strings.TrimPrefix(parts[0], "@")
-	dateParts := strings.Split(parts[1], "-")
+	dateParts := strings.Split(dateStr, "-")
 	if len(dateParts) != 2 {
-		log.Printf("⚠️ Invalid date format from chat %d: %s", chat.ChatID, parts[1])
+		log.Printf("⚠️ Invalid date format from chat %d: %s", chat.ChatID, dateStr)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_date_format"))
 		return
 	}
@@ -90,7 +100,7 @@ func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, args, lang s
 	day, err1 := strconv.Atoi(dateParts[0])
 	month, err2 := strconv.Atoi(dateParts[1])
 	if err1 != nil || err2 != nil || day < 1 || day > 31 || month < 1 || month > 12 {
-		log.Printf("⚠️ Invalid date logic from chat %d: %s", chat.ChatID, parts[1])
+		log.Printf("⚠️ Invalid date logic from chat %d: %s", chat.ChatID, dateStr)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_invalid_date"))
 		return
 	}
@@ -211,10 +221,10 @@ func (b *Bot) handleSetLanguage(ctx context.Context, chat *db.Chat, args string)
 	b.SendText(chat.ChatID, b.i18n.T(newLang, "success_lang_set"))
 }
 
-func (b *Bot) handleDeleteBirthday(ctx context.Context, chat *db.Chat, args, lang string) {
-	username := strings.TrimPrefix(strings.TrimSpace(args), "@")
+func (b *Bot) handleDeleteBirthday(ctx context.Context, chat *db.Chat, username, lang string) {
 	if username == "" {
-		b.SendText(chat.ChatID, b.i18n.T(lang, "err_delete_format"))
+		log.Printf("⚠️ /delete_birthday from user without username in chat %d", chat.ChatID)
+		b.SendText(chat.ChatID, b.i18n.T(lang, "err_no_username"))
 		return
 	}
 
