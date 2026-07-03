@@ -90,13 +90,15 @@ func (s *Service) celebrateBirthdays(ctx context.Context, chat *db.Chat, localTi
 
 	// 2. Loop through the birthday boys/girls and send the AI wishes!
 	for _, b := range birthdays {
+		displayName := b.GetDisplayName()
+
 		// Generate the custom wish via Gemini
-		wish, err := s.ai.GenerateWish(ctx, b.Username, chat.PromptTemplate)
+		wish, err := s.ai.GenerateWish(ctx, displayName, chat.PromptTemplate)
 
 		if err != nil {
 			// Fallback to a hardcoded string if the AI fails or limits are reached
-			log.Printf("AI Generation failed for %s: %v", b.Username, err)
-			wish = s.i18n.T(lang, "fallback_wish", b.Username)
+			log.Printf("AI Generation failed for %s: %v", displayName, err)
+			wish = s.i18n.T(lang, "fallback_wish", displayName)
 		}
 
 		// Send it to the chat

@@ -32,7 +32,7 @@ func NewClient(ctx context.Context, apiKey string) (*Client, error) {
 }
 
 // GenerateWish calls Gemini to generate a customized birthday message with exponential backoff for resilience.
-func (c *Client) GenerateWish(ctx context.Context, username, stylePrompt string) (string, error) {
+func (c *Client) GenerateWish(ctx context.Context, name, stylePrompt string) (string, error) {
 	if strings.TrimSpace(stylePrompt) == "" {
 		stylePrompt = "Make it a warm, friendly, and cheerful birthday wish."
 	}
@@ -44,7 +44,7 @@ func (c *Client) GenerateWish(ctx context.Context, username, stylePrompt string)
 	}
 
 	// 2. Inject parameters into our embedded markdown prompt
-	systemInstruction := fmt.Sprintf(systemPromptTemplate, username, stylePrompt)
+	systemInstruction := fmt.Sprintf(systemPromptTemplate, name, stylePrompt)
 
 	var resp *genai.GenerateContentResponse
 
