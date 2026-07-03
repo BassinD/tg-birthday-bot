@@ -19,7 +19,11 @@ jobs:
         with:
           workload_identity_provider: ${{ vars.WIF_PROVIDER }}
           service_account: ${{ vars.SA_EMAIL }}
-
+          
+      - name: 'Auth to Artifact Registry'
+        run: |
+          gcloud auth configure-docker europe-west3-docker.pkg.dev --quiet
+          
       - name: Build and Push Docker image
         run: |
           docker build -t ${{ vars.REGISTRY_IMAGE_NAME }}:${{ github.sha }} .
