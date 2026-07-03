@@ -37,9 +37,11 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 
 	lang := chat.Language
 
-	var username string
+	var username, firstName, lastName string
 	if msg.From != nil {
 		username = msg.From.UserName
+		firstName = msg.From.FirstName
+		lastName = msg.From.LastName
 	}
 
 	// 3. Route the command
@@ -53,7 +55,7 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 		b.SendText(chatID, b.i18n.T(lang, "start_welcome"))
 
 	case "add_birthday":
-		b.handleAddBirthday(ctx, chat, username, args, lang)
+		b.handleAddBirthday(ctx, chat, username, firstName, lastName, args, lang)
 
 	case "list_birthdays":
 		b.handleListBirthdays(ctx, chat, lang)
@@ -76,7 +78,7 @@ func (b *Bot) handleCommand(ctx context.Context, msg *tgbotapi.Message) {
 	}
 }
 
-func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, username, args, lang string) {
+func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, username, firstName, lastName, args, lang string) {
 	if username == "" {
 		log.Printf("⚠️ /add_birthday from user without username in chat %d", chat.ChatID)
 		b.SendText(chat.ChatID, b.i18n.T(lang, "err_no_username"))
@@ -106,10 +108,12 @@ func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, username, ar
 	}
 
 	birthday := &db.Birthday{
-		ChatID:   chat.ChatID,
-		Username: username,
-		Day:      day,
-		Month:    month,
+		ChatID:    chat.ChatID,
+		Username:  username,
+		FirstName: firstName,
+		LastName:  lastName,
+		Day:       day,
+		Month:     month,
 	}
 
 	if err := b.db.AddBirthday(ctx, birthday); err != nil {
@@ -118,8 +122,10 @@ func (b *Bot) handleAddBirthday(ctx context.Context, chat *db.Chat, username, ar
 		return
 	}
 
-	log.Printf("✅ Successfully saved birthday for @%s (%02d-%02d) in chat %d", username, day, month, chat.ChatID)
-	b.SendText(chat.ChatID, b.i18n.T(lang, "success_birthday_saved", username, day, month))
+	displayName := birthday.GetDisplayName()
+
+	log.Printf("✅ Successfully saved birthday for %s (@%s) (%02d-%02d) in chat %d", displayName, username, day, month, chat.ChatID)
+	b.SendText(chat.ChatID, b.i18n.T(lang, "success_birthday_saved", displayName, day, month))
 }
 
 func (b *Bot) handleListBirthdays(ctx context.Context, chat *db.Chat, lang string) {
@@ -139,8 +145,9 @@ func (b *Bot) handleListBirthdays(ctx context.Context, chat *db.Chat, lang strin
 	log.Printf("✅ Listed %d birthdays for chat %d", len(birthdays), chat.ChatID)
 	var msg strings.Builder
 	msg.WriteString(b.i18n.T(lang, "list_title") + "\n")
-	for _, b := range birthdays {
-		msg.WriteString(fmt.Sprintf("• @%s: %02d-%02d\n", b.Username, b.Day, b.Month))
+	for _, b_entry := range birthdays {
+		displayName := b_entry.GetDisplayName()
+		msg.WriteString(fmt.Sprintf("• %s: %02d-%02d\n", displayName, b_entry.Day, b_entry.Month))
 	}
 	b.SendText(chat.ChatID, msg.String())
 }
@@ -235,5 +242,5 @@ func (b *Bot) handleDeleteBirthday(ctx context.Context, chat *db.Chat, username,
 	}
 
 	log.Printf("✅ Deleted birthday for @%s in chat %d", username, chat.ChatID)
-	b.SendText(chat.ChatID, b.i18n.T(lang, "success_birthday_deleted", username))
+	b.SendText(chat.ChatID, b.i18n.T(lang, "success_birthday_deleted"))
 }

@@ -5,7 +5,7 @@
   "err_date_format": "⚠️ Date format must be DD-MM (e.g., 25-12)",
   "err_invalid_date": "⚠️ Invalid date. Please use valid numbers for DD-MM.",
   "err_save_failed": "❌ Failed to save.",
-  "success_birthday_saved": "✅ Saved! Will celebrate @%s on %02d-%02d.",
+  "success_birthday_saved": "✅ Saved! Will celebrate %s on %02d-%02d.",
   "empty_birthdays": "No birthdays registered yet! 📭",
   "list_title": "🎂 **Registered Birthdays:**\n",
   "err_set_time_format": "⚠️ Format: /set_time HH:MM Timezone\nExample: `/set_time 09:00 Europe/Moscow`",
@@ -16,8 +16,8 @@
   "success_template_set": "✅ AI Style prompt updated successfully!",
   "err_lang_format": "⚠️ Supported languages are 'en' and 'ru'. Example: `/set_language ru`",
   "success_lang_set": "✅ Language changed to English!",
-  "fallback_wish": "🎉 Happy Birthday @%s! Wishing you a fantastic day!",
+  "fallback_wish": "🎉 Happy Birthday %s! Wishing you a fantastic day!",
   "err_delete_format": "Please use /delete_birthday to remove your birthday.",
-  "success_birthday_deleted": "Birthday for user @%s successfully deleted!",
+  "success_birthday_deleted": "Your birthday has been successfully deleted!",
   "err_no_username": "⚠️ You must have a Telegram username to use this bot."
 }

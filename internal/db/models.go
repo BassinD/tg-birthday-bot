@@ -19,8 +19,26 @@ type Chat struct {
 
 // Birthday represents a single user's birthday linked to a specific chat.
 type Birthday struct {
-	ChatID   int64  `firestore:"chat_id"`
-	Username string `firestore:"username"` // Without the '@' symbol
-	Day      int    `firestore:"day"`
-	Month    int    `firestore:"month"`
+	ChatID    int64  `firestore:"chat_id"`
+	Username  string `firestore:"username"` // Without the '@' symbol
+	FirstName string `firestore:"first_name"`
+	LastName  string `firestore:"last_name"`
+	Day       int    `firestore:"day"`
+	Month     int    `firestore:"month"`
+}
+
+// GetDisplayName returns the user's first and last name if available, otherwise it returns the username prefixed with '@'.
+func (b Birthday) GetDisplayName() string {
+	name := b.FirstName
+	if b.LastName != "" {
+		if name != "" {
+			name += " "
+		}
+		name += b.LastName
+	}
+
+	if name == "" {
+		return "@" + b.Username
+	}
+	return name
 }
