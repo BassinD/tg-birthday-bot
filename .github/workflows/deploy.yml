@@ -1,0 +1,33 @@
+name: Build and Deploy to GKE
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write' # Required for Workload Identity
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v3'
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.SA_EMAIL }}
+
+      - name: Build and Push Docker image
+        run: |
+          docker build -t ${{ vars.REGISTRY_IMAGE_NAME }}:${{ github.sha }} .
+          docker push ${{ vars.REGISTRY_IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: 'birthday-bot'
+          image: '${{ vars.REGISTRY_IMAGE_NAME }}:${{ github.sha }}'
+          region: 'europe-west3'
