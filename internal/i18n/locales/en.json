@@ -1,5 +1,5 @@
 {
-  "start_welcome": "👋 Hello! I'm the Birthday Bot. Use /add_birthday to get started!",
+  "start_welcome": "👋 Hello! I'm the Birthday Bot.\n\nI'll help you remember important dates. Here is a quick guide to the commands:\n\nAdd a birthday: /add_birthday [MM-DD]\n\nExample: /add_birthday 05-20\n\nDelete a birthday: /delete_birthday\n\nExample: /delete_birthday\n\nChoose a wish style: /set_template [style]\n\nSet notification time: /set_time [HH:MM] [timezone]\n\nExample: /set_time 09:00 Asia/Almaty",
   "err_unknown_command": "Unknown command. 🤷‍♂️",
   "err_add_format": "⚠️ Format: /add_birthday DD-MM",
   "err_date_format": "⚠️ Date format must be DD-MM (e.g., 25-12)",

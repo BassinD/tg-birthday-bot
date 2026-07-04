@@ -1,5 +1,5 @@
 {
-  "start_welcome": "👋 Привет! Я бот для дней рождения. Используйте /add_birthday, чтобы начать!",
+  "start_welcome": "👋 Привет! Я бот для дней рождения.\n\nЯ помогу вам не забыть о важных датах. Вот краткий гид по командам:\n\nДобавить день рождения: /add_birthday [ММ-ДД]\n\nПример: /add_birthday 05-20\n\nУдалить день рождения: /delete_birthday\n\nПример: /delete_birthday\n\nВыбрать стиль поздравления: /set_template [стиль]\n\nУстановить время поздравления: /set_time [ЧЧ:ММ] [таймзона]\n\nПример: /set_time 09:00 Asia/Almaty",
   "err_unknown_command": "Неизвестная команда. 🤷‍♂️",
   "err_add_format": "⚠️ Формат: /add_birthday DD-MM",
   "err_date_format": "⚠️ Формат даты должен быть DD-MM (например, 25-12)",
