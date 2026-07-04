@@ -14,7 +14,7 @@ import (
 //go:embed prompt.md
 var systemPromptTemplate string
 
-const defaultModel = "gemini-3.5-flash"
+const defaultModel = "gemini-3.1-flash-lite"
 
 type Client struct {
 	genaiClient *genai.Client
